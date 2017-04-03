@@ -1,0 +1,3 @@
+twoTimesThree = 2 * 3;
+
+timesTwo num = num * 2;

@@ -1,0 +1,3 @@
+timeTwo <- 4;
+
+timesTwo <- (2 * myvar);

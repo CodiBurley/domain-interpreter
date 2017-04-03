@@ -1,0 +1,61 @@
+This defines a programmaing language designed by Codi Burley in BNF
+(Backus–Naur form)
+
+<reserved> ::= "domain" | "values" | "ranges" | "is" | "true" | "false"
+             | "not" | "and" | "or" | "if" | "then" | "else";
+
+<script> ::= <expression> | <expression> <script>;
+
+<expression> ::= <bound> | <binding> | <arithmetic> | <boolean> | <function>
+               | <function-call> | <domain>
+               | <conditional> | "(" <expression> ")";
+
+<domain> ::= "domain" <parameters> ":" "values" "{" <values-list> "}"
+           "ranges" "" <ranges-list> "]";
+
+<values-list> ::= <binding> | <binding> "," <values-list>;
+
+<ranges-list> ::= <function> | <function> "," <ranges-list>;
+
+<binding> ::= <identifier> "is" <expression>
+            | <function>;
+
+<function> ::= <identifier> "=" <expression>
+             | <identifier> <parameters> "=" <expression>;
+
+<function-call> ::= <identifier> "<-" <expression>;
+
+<conditional> ::= "if" <boolean> "then" <expression>
+                | "if" <boolean> "then" <expression> "else" <expression>;
+
+<parameters> ::= <identifier> | <identifier> <parameters>;
+
+<bound> ::= <identifier> | <domain-value>;
+
+<domain-value> ::= <identifier>"."<identifier>;
+
+<identifier> ::= (<letter> | "_") <alpha-numeric-text>;
+
+<arithmetic> ::= <bound> | <function-call> | <digit> | "-"<arithmetic>
+               | <arithmetic> <operator-arithmetic> <arithmetic>;
+
+<boolean> ::= "true" | "false" | "not" <boolean>
+            | <boolean> <operator-boolean> <boolean>
+            | <arithmetic> <operator-realtional> <arithmetic>;
+
+<operator-arithmetic> ::= "+" | "-" | "*" | "/";
+
+<operator-boolean> ::= "and" | "or";
+
+<operator-realtional> ::= ">" | "<" | "==";
+
+<alpha-numeric-text> ::= <letter> | <digit>
+                       | (<letter> | <digit>)  <alpha-numeric-text>;
+
+<letter> ::= "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I" | "J" | "K"
+           | "L" | "M" | "N" | "O" | "P" | "Q" | "R" | "S" | "T" | "U" | "V"
+           | "W" | "X" | "Y" | "Z" | "a" | "b" | "c" | "d" | "e" | "f" | "g"
+           | "h" | "i" | "j" | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r"
+           | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z";
+
+<digit> ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
