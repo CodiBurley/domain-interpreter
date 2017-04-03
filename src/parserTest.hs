@@ -103,8 +103,6 @@ testAssertions = map statusStrings
   where statusStrings (name, iores) = do
           result <- iores
           return $ if result then "passed" else "failed: " ++ name
-        -- statusStrings (_, True) = "passed"
-        -- statusStrings (testName, False) = "failed: " ++ testName
 
 printTests :: [IO String] -> IO ()
 printTests ioResults = do
