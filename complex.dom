@@ -8,4 +8,4 @@ Complex is domain i_a i_b:
 my_comp is (Complex <- 3) <- 2;
 your_comp is (Complex <- 1) <- 4;
 
-result is (add <- my_comp) <- your_comp
+result is (add <- my_comp) <- your_comp;

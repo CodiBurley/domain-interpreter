@@ -97,6 +97,61 @@ assertSimpleApplication =
             (IntLiteral 2)
             (Variable (Value "myvar")))))])
 
+assertSimpleDomain =
+  assertFileParsesTo
+  "../test/parse/simple-domain.dom"
+  (Script [
+    Declare (
+      BindValue
+        "Complex"
+        (DomainExp (
+          Domain
+            ["i_a","i_b"]
+            [BindValue
+              "a"
+              (ArithmeticExp (
+                Variable (Value "i_a"))),
+            BindValue
+              "b"
+              (ArithmeticExp (
+                Variable (Value "i_b")))]
+            [FunctionWithParams
+              "add"
+              ["c"]
+              (FunctionEval (
+                FunctionCall (
+                  FunctionEval (
+                    FunctionCall
+                      (ValueOf (Value "Complex"))
+                      (ArithmeticExp (
+                        ArithmeticOperation
+                          Add
+                          (Variable (Value "a"))
+                          (Variable (DomainValue "c" "a"))))))
+                  (ArithmeticExp (
+                    ArithmeticOperation
+                      Add
+                      (Variable (Value "b"))
+                      (Variable (DomainValue "c" "b")))))),
+            FunctionWithParams
+              "multiply_s"
+                ["s"]
+                (FunctionEval (
+                  FunctionCall (
+                    FunctionEval (
+                      FunctionCall
+                        (ValueOf (Value "Complex"))
+                        (ArithmeticExp (
+                          ArithmeticOperation
+                            Multiply
+                            (Variable (Value "a"))
+                            (Variable (Value "s"))))))
+                  (ArithmeticExp (
+                    ArithmeticOperation
+                      Multiply
+                      (Variable (Value "b"))
+                      (Variable (Value "s"))))))])))])
+
 
 testAssertions :: [(String, IO Bool)] -> [IO String]
 testAssertions = map statusStrings
@@ -115,4 +170,5 @@ runTests = printTests $
     ("simple-bool.dom", assertSimpleBool),
     ("simple-binding.dom", assertSimpleBinding),
     ("simple-function.dom", assertSimpleFunction),
-    ("simple-application.dom", assertSimpleApplication)]
+    ("simple-application.dom", assertSimpleApplication),
+    ("simple-domain.dom", assertSimpleDomain)]
