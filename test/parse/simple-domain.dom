@@ -1,0 +1,6 @@
+Complex is domain i_a i_b:
+  values { a is i_a, b is i_b }
+  ranges {
+    add c = (Complex <- (a + c.a)) <- (b + c.b),
+    multiply_s s = (Complex <- (a * s)) <- (b * s)
+  };
