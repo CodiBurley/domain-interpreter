@@ -119,10 +119,10 @@ noParamFunction =
 
 paramFunction =
   do var <- identifier
-     params <- parameters
+     param <- identifier
      reservedOp "="
      expr <- expression
-     return $ FunctionWithParams var params expr
+     return $ FunctionWithParam var param expr
 
 parameters = sepBy1 identifier whiteSpace
 

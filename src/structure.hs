@@ -46,7 +46,7 @@ data Boolean = IsTrue
                deriving (Eq, Show)
 
 data Function = Function String Expression
-              | FunctionWithParams String [String] Expression
+              | FunctionWithParam String String Expression
                 deriving (Eq, Show)
 
 data FunctionCall = FunctionCall Expression Expression

@@ -48,8 +48,11 @@ interpFuncCall :: FunctionCall -> Env -> Maybe Expression;
 interpFuncCall (FunctionCall fe pe) e =
   case funcExp of
     Just (FunctionExp (Function s exp)) -> interpExpression exp e
+    Just (FunctionExp (FunctionWithParam s pStr exp)) ->
+      interpExpression exp ((pStr, paramExp):e)
     _                                   -> Nothing
   where funcExp = interpExpression fe e
+        paramExp = interpExpression pe e
 
 envLookup :: Env -> String -> Maybe Expression
 envLookup [] _ = Nothing
@@ -65,6 +68,20 @@ test1 = interpExpression
             "doesntMatter"
             (ArithmeticExp 
               (IntLiteral 42))))
+        (ArithmeticExp
+          (IntLiteral 1)))))
+  []
+
+test2 = interpExpression
+  (ArithmeticExp
+    (Evaluate
+      (FunctionCall
+        (FunctionExp
+          (FunctionWithParam
+            "doesntMatter"
+            "x"
+            (ArithmeticExp 
+              (Variable (Value "x")))))
         (ArithmeticExp
           (IntLiteral 1)))))
   []

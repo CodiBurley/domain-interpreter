@@ -71,9 +71,9 @@ assertSimpleFunction =
             (IntLiteral 2)
             (IntLiteral 3)))),
     FunctionExp (
-      FunctionWithParams
+      FunctionWithParam
         "timesTwo"
-        ["num"]
+        "num"
         (ArithmeticExp (
           ArithmeticOperation
             Multiply
@@ -115,9 +115,9 @@ assertSimpleDomain =
               "b"
               (ArithmeticExp (
                 Variable (Value "i_b")))]
-            [FunctionWithParams
+            [FunctionWithParam
               "add"
-              ["c"]
+              "c"
               (FunctionEval (
                 FunctionCall (
                   FunctionEval (
@@ -133,9 +133,9 @@ assertSimpleDomain =
                       Add
                       (Variable (Value "b"))
                       (Variable (DomainValue "c" "b")))))),
-            FunctionWithParams
+            FunctionWithParam
               "multiply_s"
-                ["s"]
+                "s"
                 (FunctionEval (
                   FunctionCall (
                     FunctionEval (
