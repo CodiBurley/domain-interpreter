@@ -1,18 +1,27 @@
 module Interpreter
 (
 ) where
+import qualified Data.Map as Map
 import Structure
 
 type Env = [(String, Maybe Expression)]
+
+arithOpFun :: (Integral a)  => OperatorArithmetic -> (a -> a -> a)
+arithOpFun Add      = (+)
+arithOpFun Subtract = (-)
+arithOpFun Multiply = (*)
+arithOpFun Divide   = (quot)
+
+
 
 -- Some interpretations have effects on the environment that
 -- they were interpreted in. For example:
 --   myvar is 6;
 -- this expression evaluates to the integer constant 6, but it
 -- also adds myvar to the environment is evaluated in.
--- 
+--
 -- interpExpressionEnv gives the interpretation of an expression, but
--- also the environment that is resulting from the inpretation. You 
+-- also the environment that is resulting from the inpretation. You
 -- can fold a script of expressions with this function to interpret the
 -- script
 interpExpressionEnv :: Expression -> Env -> (Maybe Expression, Env)
@@ -23,8 +32,7 @@ interpExpressionEnv exp@(FunctionExp (Function s _)) e = (interped, (s, interped
   where interped = interpExpression exp e
 
 -- Implementations that have no effect on environment
-interpExpressionEnv exp e = (interpExpression exp e, e) 
-
+interpExpressionEnv exp e = (interpExpression exp e, e)
 
 
 
@@ -48,12 +56,13 @@ interpExpression exp@(ArithmeticExp (IntLiteral i)) e = Just $ exp
 
 interpExpression (ArithmeticExp (Negative a)) e = interpAsNegative a e
 
---interpExpression (ArithmeticExp aop@(ArithmeticOperation _ _ _)) e =
+interpExpression (ArithmeticExp aop@(ArithmeticOperation o a b)) e =
+  interpArithOp (o, a, b) e
 -- End Arithmetic Expressions
 
 
 
-interpFuncCall :: FunctionCall -> Env -> Maybe Expression;
+interpFuncCall :: FunctionCall -> Env -> Maybe Expression
 interpFuncCall (FunctionCall fe pe) e =
   case funcExp of
     Just (FunctionExp (Function s exp)) -> interpExpression exp e
@@ -63,13 +72,22 @@ interpFuncCall (FunctionCall fe pe) e =
   where funcExp = interpExpression fe e
         paramExp = interpExpression pe e
 
-interpAsNegative :: Arithmetic -> Env -> Maybe Expression;
-interpAsNegative arith e = 
+interpAsNegative :: Arithmetic -> Env -> Maybe Expression
+interpAsNegative arith e =
   case (interpExpression (ArithmeticExp arith) e) of
     Just (ArithmeticExp (IntLiteral i)) ->
       interpExpression (ArithmeticExp (IntLiteral (-i))) e
     _                                   -> Nothing
 
+interpArithOp :: (OperatorArithmetic, Arithmetic, Arithmetic) -> Env -> Maybe Expression
+interpArithOp (operator, a1, a2) e =
+  case (interpredA1, interpedA2) of
+    (Just (ArithmeticExp (IntLiteral i)), Just (ArithmeticExp (IntLiteral j))) ->
+      interpExpression (ArithmeticExp (IntLiteral (opFunc i j))) e
+    _ -> Nothing
+  where (interpredA1, interpedA2) = (interpExpression (ArithmeticExp a1) e
+                                    ,interpExpression (ArithmeticExp a2) e)
+        opFunc = arithOpFun operator
 
 
 
@@ -77,6 +95,11 @@ envLookup :: Env -> String -> Maybe Expression
 envLookup [] _ = Nothing
 envLookup ((s, x):e) val = if s == val then x else (envLookup e val)
 
+
+
+arithIsInt :: Arithmetic -> Bool
+arithIsInt (IntLiteral _) = True
+arithIsInt _ = False
 
 
 
@@ -87,20 +110,20 @@ testFuncEval1 = interpExpression
         (FunctionExp
           (Function
             "doesntMatter"
-            (ArithmeticExp 
+            (ArithmeticExp
               (IntLiteral 42))))
         (ArithmeticExp
           (IntLiteral 1)))))
   []
 
-basicFuncEvalWithParams = 
+basicFuncEvalWithParams =
   (Evaluate
     (FunctionCall
       (FunctionExp
         (FunctionWithParam
           "doesntMatter"
           "x"
-          (ArithmeticExp 
+          (ArithmeticExp
             (Variable (Value "x")))))
       (ArithmeticExp
         (IntLiteral 1))))
@@ -114,6 +137,21 @@ testNegative1 =
 testNegative2 =
   interpExpression (ArithmeticExp (Negative (Negative (IntLiteral 5)))) []
 
-
 testNegative3 =
   interpExpression (ArithmeticExp (Negative basicFuncEvalWithParams)) []
+
+arithOpTestMaker op = interpExpression
+  (ArithmeticExp
+    (ArithmeticOperation
+      op
+      (IntLiteral 5)
+      (IntLiteral 4)))
+  []
+
+testArithOp1 = arithOpTestMaker Add
+
+testArithOp2 = arithOpTestMaker Subtract
+
+testArithOp3 = arithOpTestMaker Multiply
+
+testArithOp4 = arithOpTestMaker Divide
