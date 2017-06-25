@@ -45,20 +45,28 @@ interpExpression (Declare (BindValue s exp)) e = Just exp
 -- TODO binding to functions?
 --interpExpression (Declare (BindFunction (Function s exp))) e
 
-interpExpression exp@(FunctionExp fe) e = Just $ exp
-
 -- Arithmetic Expressions
 interpExpression (ArithmeticExp (Variable b)) e = interpExpression (ValueOf b) e
 
 interpExpression (ArithmeticExp (Evaluate fc)) e = interpFuncCall fc e
 
-interpExpression exp@(ArithmeticExp (IntLiteral i)) e = Just $ exp
+interpExpression exp@(ArithmeticExp (IntLiteral i)) e = Just exp
 
 interpExpression (ArithmeticExp (Negative a)) e = interpAsNegative a e
 
 interpExpression (ArithmeticExp aop@(ArithmeticOperation o a b)) e =
   interpArithOp (o, a, b) e
 -- End Arithmetic Expressions
+
+-- Boolean Expressions
+interpExpression exp@(BooleanExp IsTrue) e = Just exp
+
+interpExpression exp@(BooleanExp IsFalse) e = Just exp
+
+interpExpression (BooleanExp (Negate b)) e = interpAsNegation b e
+-- End Boolean Expressions
+
+interpExpression exp@(FunctionExp fe) e = Just exp
 
 
 
@@ -88,6 +96,13 @@ interpArithOp (operator, a1, a2) e =
   where (interpredA1, interpedA2) = (interpExpression (ArithmeticExp a1) e
                                     ,interpExpression (ArithmeticExp a2) e)
         opFunc = arithOpFun operator
+
+interpAsNegation :: Boolean -> Env -> Maybe Expression
+interpAsNegation bool e =
+  case (interpExpression (BooleanExp bool) e) of
+    Just (BooleanExp IsTrue)  -> interpExpression (BooleanExp IsFalse) e
+    Just (BooleanExp IsFalse) -> interpExpression (BooleanExp IsTrue) e
+    _                         -> Nothing
 
 
 
@@ -155,3 +170,7 @@ testArithOp2 = arithOpTestMaker Subtract
 testArithOp3 = arithOpTestMaker Multiply
 
 testArithOp4 = arithOpTestMaker Divide
+
+testNegation1 = interpExpression (BooleanExp (Negate IsTrue)) []
+
+testNegation2 = interpExpression (BooleanExp (Negate (Negate IsTrue))) []
